@@ -40,7 +40,7 @@ interface AssetSpec {
 // Height/orientation targets. Only assets with a GLB present are used; the rest
 // stay procedural. Heights match the procedural versions they replace.
 const SPECS: Record<AssetId, AssetSpec> = {
-  rider: { file: 'rider.glb', height: 1.85, yaw: Math.PI, groundAlign: true },
+  rider: { file: 'rider.glb', height: 1.85, yaw: 0, groundAlign: true },
   pine: { file: 'pine.glb', height: 3.2, groundAlign: true },
   palm: { file: 'palm.glb', height: 4.6, groundAlign: true },
   house: { file: 'house.glb', height: 3.6, groundAlign: true },
