@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import type RAPIER from '@dimforge/rapier3d-compat';
 import { CHUNK_LEN, clamp } from '../shared/types';
+import { assets } from './assets';
 import type { ChunkInfo } from './world';
 import { centerXAt } from './world';
 
@@ -80,7 +81,9 @@ function blobShadow(radius: number): THREE.Mesh {
   return m;
 }
 
-function makeBaleMesh(): THREE.Group {
+function makeBaleMesh(): THREE.Object3D {
+  const glb = assets.create('bale');
+  if (glb) return glb;
   const g = new THREE.Group();
   const roll = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 1.05, 14), MATS.hay);
   roll.rotation.z = Math.PI / 2;
@@ -110,7 +113,9 @@ function makeConeMesh(): THREE.Group {
   return g;
 }
 
-function makeScooterMesh(): THREE.Group {
+function makeScooterMesh(): THREE.Object3D {
+  const glb = assets.create('scooter');
+  if (glb) return glb;
   const g = new THREE.Group();
   const deck = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.08, 1.1), MATS.scooterBody);
   deck.position.y = 0.16;
@@ -134,7 +139,9 @@ function makeScooterMesh(): THREE.Group {
   return g;
 }
 
-function makeChickenMesh(): { group: THREE.Group; wings: THREE.Object3D[] } {
+function makeChickenMesh(): { group: THREE.Object3D; wings: THREE.Object3D[] } {
+  const glb = assets.create('chicken');
+  if (glb) return { group: glb, wings: [] }; // GLB chicken: no separate wing rig
   const g = new THREE.Group();
   const body = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 8), MATS.chickenBody);
   body.position.y = 0.3;
@@ -466,10 +473,13 @@ export class ObstacleManager {
 
   private destroy(o: Obstacle): void {
     this.scene.remove(o.mesh);
-    // Dispose only geometry we own per-instance (all these are per-instance)
-    o.mesh.traverse((child) => {
-      if (child instanceof THREE.Mesh) child.geometry.dispose();
-    });
+    // Dispose per-instance procedural geometry. GLB clones share geometry with
+    // the prototype and every sibling clone, so never dispose those.
+    if (!o.mesh.userData.isGlbAsset) {
+      o.mesh.traverse((child) => {
+        if (child instanceof THREE.Mesh) child.geometry.dispose();
+      });
+    }
     if (o.shadow) {
       this.scene.remove(o.shadow);
       o.shadow.geometry.dispose();

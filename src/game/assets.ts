@@ -45,7 +45,8 @@ const SPECS: Record<AssetId, AssetSpec> = {
   palm: { file: 'palm.glb', height: 4.6, groundAlign: true },
   house: { file: 'house.glb', height: 3.6, groundAlign: true },
   rock: { file: 'rock.glb', height: 1.1, groundAlign: true },
-  bale: { file: 'bale.glb', height: 1.1, groundAlign: true },
+  // Bale is a dynamic body driven by its collider CENTER, so center-align it.
+  bale: { file: 'bale.glb', height: 1.12, groundAlign: false },
   scooter: { file: 'scooter.glb', height: 1.15, yaw: Math.PI, groundAlign: true },
   chicken: { file: 'chicken.glb', height: 0.7, yaw: Math.PI, groundAlign: true },
   umbrella: { file: 'umbrella.glb', height: 2.4, groundAlign: true },
@@ -87,6 +88,10 @@ class AssetRegistry {
     const proto = this.prototypes.get(id);
     if (!proto) return null;
     const clone = proto.clone(true);
+    // clone() SHARES geometry/material with the prototype and every sibling
+    // clone. Tag it so disposal paths (obstacles.destroy) never dispose the
+    // shared buffers out from under other live instances.
+    clone.userData.isGlbAsset = true;
     clone.traverse((o) => {
       if (o instanceof THREE.Mesh) {
         o.castShadow = true;

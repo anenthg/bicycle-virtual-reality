@@ -5,7 +5,23 @@
 // 100 m chunks, 3 generated ahead, disposed behind (spec §5).
 
 import * as THREE from 'three';
+import { assets, type AssetId } from './assets';
 import { CHUNKS_AHEAD, CHUNK_LEN, ROAD_HALF, clamp } from '../shared/types';
+
+/** A jittered clone of a generated GLB prop, or null to fall back to procedural. */
+function glbProp(
+  id: AssetId,
+  rng: () => number,
+  scaleLo = 0.85,
+  scaleHi = 1.25,
+  randomYaw = true,
+): THREE.Object3D | null {
+  const g = assets.create(id);
+  if (!g) return null;
+  g.scale.multiplyScalar(scaleLo + rng() * (scaleHi - scaleLo));
+  if (randomYaw) g.rotation.y += rng() * Math.PI * 2;
+  return g;
+}
 
 /** Deterministic per-chunk RNG so a chunk always rebuilds identically. */
 export function mulberry32(seed: number): () => number {
@@ -194,7 +210,9 @@ const MAT = {
 const FLOWER_COLORS = [0xff8fab, 0xffd93d, 0xffffff, 0xff9a5e, 0xb388ff].map((c) => new THREE.Color(c));
 const FLOWER_MAT = new THREE.MeshBasicMaterial({ color: 0xffffff }); // per-instance colors tint this
 
-function makePine(rng: () => number): THREE.Group {
+function makePine(rng: () => number): THREE.Object3D {
+  const glb = glbProp('pine', rng, 0.8, 1.7);
+  if (glb) return glb;
   const g = new THREE.Group();
   const scale = 0.8 + rng() * 1.1;
   const snowy = rng() < 0.3;
@@ -219,7 +237,9 @@ function makePine(rng: () => number): THREE.Group {
   return g;
 }
 
-function makeRockCluster(rng: () => number): THREE.Group {
+function makeRockCluster(rng: () => number): THREE.Object3D {
+  const glb = glbProp('rock', rng, 0.7, 1.6);
+  if (glb) return glb;
   const g = new THREE.Group();
   const n = 1 + Math.floor(rng() * 2.4);
   for (let i = 0; i < n; i++) {
@@ -234,7 +254,9 @@ function makeRockCluster(rng: () => number): THREE.Group {
   return g;
 }
 
-function makeHouse(rng: () => number): THREE.Group {
+function makeHouse(rng: () => number): THREE.Object3D {
+  const glb = glbProp('house', rng, 0.9, 1.35);
+  if (glb) return glb;
   const g = new THREE.Group();
   const w = 2.6 + rng() * 1.6;
   const h = 2.2 + rng() * 1.1;
@@ -278,7 +300,9 @@ function makeLamp(): THREE.Group {
   return g;
 }
 
-function makePalm(rng: () => number): THREE.Group {
+function makePalm(rng: () => number): THREE.Object3D {
+  const glb = glbProp('palm', rng, 0.85, 1.4);
+  if (glb) return glb;
   const g = new THREE.Group();
   const lean = (rng() - 0.5) * 0.5;
   let x = 0;
@@ -307,7 +331,9 @@ function makePalm(rng: () => number): THREE.Group {
   return g;
 }
 
-function makeUmbrella(rng: () => number): THREE.Group {
+function makeUmbrella(rng: () => number): THREE.Object3D {
+  const glb = glbProp('umbrella', rng, 0.9, 1.3);
+  if (glb) return glb;
   const g = new THREE.Group();
   const pole = new THREE.Mesh(GEO.box, MAT.lampPole);
   pole.scale.set(0.07, 2.2, 0.07);
