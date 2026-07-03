@@ -2,6 +2,7 @@
 // Rapier's WASM lazy-loads behind the title screen (spec §3).
 
 import type RAPIER from '@dimforge/rapier3d-compat';
+import { assets } from './game/assets';
 import { AudioEngine } from './game/audio';
 import { Game, type GateSummary } from './game/game';
 import { InputManager } from './game/input';
@@ -143,7 +144,9 @@ async function boot(): Promise<void> {
   }
 
   loading.textContent = '🎮 loading physics…';
-  const rapier = await rapierPromise;
+  // Preload GLB assets alongside the physics WASM. Missing meshes fall back to
+  // procedural, so this never blocks the game from starting.
+  const [rapier] = await Promise.all([rapierPromise, assets.preload()]);
   title.remove();
 
   // ---- game + UI ------------------------------------------------------------------

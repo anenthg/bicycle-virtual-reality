@@ -4,6 +4,7 @@
 // better than position mapping, per spec §5.
 
 import * as THREE from 'three';
+import { assets } from './assets';
 import {
   GRAVITY,
   MAX_LAT_SPEED,
@@ -70,15 +71,17 @@ export class Rider {
 
   private bike = new THREE.Group();
   private frontAssembly = new THREE.Group();
-  private frontWheel: THREE.Group;
-  private rearWheel: THREE.Group;
+  private frontWheel?: THREE.Group;
+  private rearWheel?: THREE.Group;
   private crank = new THREE.Group();
   private pedalL = new THREE.Group();
   private pedalR = new THREE.Group();
-  private legL: THREE.Mesh;
-  private legR: THREE.Mesh;
+  private legL?: THREE.Mesh;
+  private legR?: THREE.Mesh;
   private riderBody = new THREE.Group();
   private shadowBlob: THREE.Mesh;
+  /** When a generated bike GLB is loaded, skip procedural sub-part animation. */
+  private useGlb = false;
 
   private spin = 0; // wheel rotation accumulator
   private wobbleT = 0;
@@ -88,6 +91,28 @@ export class Rider {
   private groundSlope = 0;
 
   constructor(scene: THREE.Scene) {
+    // Soft blob shadow reads at distance regardless of which bike we use.
+    this.shadowBlob = new THREE.Mesh(
+      new THREE.CircleGeometry(0.75, 20),
+      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22, depthWrite: false }),
+    );
+    this.shadowBlob.rotation.x = -Math.PI / 2;
+
+    if (assets.has('rider')) {
+      // Generated HD bike+rider. Keep group-level motion (lean, bob, squash);
+      // skip the procedural wheel/pedal/leg rig.
+      this.useGlb = true;
+      const model = assets.create('rider')!;
+      this.bike.add(model);
+    } else {
+      this.buildProceduralBike();
+    }
+
+    this.group.add(this.bike, this.shadowBlob);
+    scene.add(this.group);
+  }
+
+  private buildProceduralBike(): void {
     // ---- bike frame -------------------------------------------------------
     const frameMat = mat(0xff4757, 0.55);
     const rear = new THREE.Vector3(0, WHEEL_R, -0.68);
@@ -210,16 +235,6 @@ export class Rider {
 
     this.riderBody.add(torso, head, helmet, brim, this.legL, this.legR);
     this.bike.add(this.riderBody);
-
-    // Soft blob shadow (in addition to the real shadow — reads at distance)
-    this.shadowBlob = new THREE.Mesh(
-      new THREE.CircleGeometry(0.75, 20),
-      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22, depthWrite: false }),
-    );
-    this.shadowBlob.rotation.x = -Math.PI / 2;
-
-    this.group.add(this.bike, this.shadowBlob);
-    scene.add(this.group);
   }
 
   /** One fixed physics step. */
@@ -339,23 +354,26 @@ export class Rider {
       }
     }
 
-    // Wheels + steering + pedals
-    this.frontWheel.rotation.x = this.spin;
-    this.rearWheel.rotation.x = this.spin;
-    this.frontAssembly.rotation.y = damp(this.frontAssembly.rotation.y, -steer * 0.45, 14, dtRender);
-    this.crank.rotation.x = this.spin * 0.42; // geared down
+    // Per-part rig (procedural bike only — the GLB bike is a single mesh).
+    if (!this.useGlb && this.frontWheel && this.rearWheel && this.legL && this.legR) {
+      // Wheels + steering + pedals
+      this.frontWheel.rotation.x = this.spin;
+      this.rearWheel.rotation.x = this.spin;
+      this.frontAssembly.rotation.y = damp(this.frontAssembly.rotation.y, -steer * 0.45, 14, dtRender);
+      this.crank.rotation.x = this.spin * 0.42; // geared down
 
-    // Legs chase the pedals
-    const hipL = new THREE.Vector3(-0.12, 1.02, -0.34);
-    const hipR = new THREE.Vector3(0.12, 1.02, -0.34);
-    const footL = new THREE.Vector3();
-    const footR = new THREE.Vector3();
-    this.pedalL.getWorldPosition(footL);
-    this.pedalR.getWorldPosition(footR);
-    this.bike.worldToLocal(footL);
-    this.bike.worldToLocal(footR);
-    stretchBetween(this.legL, hipL, footL.add(new THREE.Vector3(0, 0.06, 0)));
-    stretchBetween(this.legR, hipR, footR.add(new THREE.Vector3(0, 0.06, 0)));
+      // Legs chase the pedals
+      const hipL = new THREE.Vector3(-0.12, 1.02, -0.34);
+      const hipR = new THREE.Vector3(0.12, 1.02, -0.34);
+      const footL = new THREE.Vector3();
+      const footR = new THREE.Vector3();
+      this.pedalL.getWorldPosition(footL);
+      this.pedalR.getWorldPosition(footR);
+      this.bike.worldToLocal(footL);
+      this.bike.worldToLocal(footR);
+      stretchBetween(this.legL, hipL, footL.add(new THREE.Vector3(0, 0.06, 0)));
+      stretchBetween(this.legR, hipR, footR.add(new THREE.Vector3(0, 0.06, 0)));
+    }
 
     // Blob shadow: hugs whatever we're riding on; projects to flat ground
     // (and thins out) while airborne.
