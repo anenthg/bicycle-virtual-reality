@@ -119,3 +119,22 @@ No OpenCV, no MediaPipe, no external assets.
 npm run build      # production build (dist/)
 npm run typecheck  # strict TS check
 ```
+
+### 3D art assets
+
+The player, bike, trees, houses, obstacles and props are **HD GLB models** in
+`public/models/`, loaded at runtime by `src/game/assets.ts` (Meshopt-compressed,
+~0.3–0.7 MB each). Every model is optional: if a `.glb` is missing, the game
+falls back to the procedural mesh it shipped with, so it always runs.
+
+Assets were generated with the Higgsfield MCP (`generate_image` →
+`image_to_3d`) and compressed for the web:
+
+```bash
+node scripts/fetch-asset.mjs <glb-url> /tmp/raw/pine.glb        # download
+node scripts/optimize-glb.mjs /tmp/raw/pine.glb public/models/pine.glb 1024
+```
+
+`optimize-glb.mjs` wraps `gltf-transform optimize` (WebP textures + Meshopt),
+turning the raw ~10 MB exports into web-ready GLBs. To swap in a new model,
+drop a replacement `.glb` under `public/models/` using the same filename.
