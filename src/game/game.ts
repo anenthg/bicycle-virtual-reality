@@ -245,6 +245,21 @@ export class Game {
     this.loop(this.lastFrameT);
   }
 
+  /** Dev helper (?sim=25): synchronously fast-forward N seconds of gameplay. */
+  simulate(seconds: number): void {
+    const steps = Math.min(Math.floor(seconds * 60), 60 * 120);
+    for (let i = 0; i < steps; i++) {
+      if (this.state !== 'playing') break;
+      this.fixedStep(FIXED_DT);
+      // Stream the world along the way so chunks exist when we land
+      if (i % 30 === 0) this.world.update(this.rider.z, this.camera, FIXED_DT);
+    }
+    // Snap camera to the new position so the first frame isn't a swoop
+    const rp = this.rider.group.position;
+    rp.set(this.rider.x, this.rider.y, this.rider.z);
+    this.camera.position.set(rp.x, rp.y + 5.1, rp.z - 9.5);
+  }
+
   pause(): void {
     if (this.state === 'playing') this.state = 'paused';
   }

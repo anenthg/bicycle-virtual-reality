@@ -129,7 +129,8 @@ const MAT = {
   snow: smat(0xf0eef7, 1),
   lampPole: smat(0x44485a, 0.5),
   lampGlow: new THREE.MeshBasicMaterial({ color: 0xffe9a8 }),
-  cloud: smat(0xffffff, 1),
+  // Self-lit so clouds stay fluffy-white regardless of sun angle (fog still tints)
+  cloud: new THREE.MeshBasicMaterial({ color: 0xfff6ec }),
   sand: smat(0xf0dfae),
   houses: [0xf2c9a8, 0xc9e4f2, 0xf2e3c9, 0xe8c9f2, 0xfad4d4].map((c) => smat(c)),
   umbrella: [0xff6b6b, 0x4d96ff, 0xffd93d].map((c) => smat(c, 0.7)),
@@ -209,15 +210,16 @@ function makePalm(rng: () => number): THREE.Group {
     seg.castShadow = true;
     g.add(seg);
   }
-  const top = new THREE.Vector3(x, 3.9, 0);
-  for (let i = 0; i < 6; i++) {
+  // Fronds: flattened cones with tips pointing outward and drooping down
+  const top = new THREE.Vector3(x, 3.75, 0);
+  const up = new THREE.Vector3(0, 1, 0);
+  for (let i = 0; i < 7; i++) {
     const f = new THREE.Mesh(GEO.frond, MAT.frond);
-    const a = (i / 6) * Math.PI * 2;
-    f.position.copy(top);
-    f.rotation.set(Math.cos(a) * 1.25, 0, Math.sin(a) * 1.25 + Math.PI);
-    f.position.x += Math.sin(a) * 0.75;
-    f.position.z += Math.cos(a) * 0.75;
-    f.position.y += 0.15;
+    f.scale.set(3.2, 1.15, 1); // wide leaf, not a spike
+    const a = (i / 7) * Math.PI * 2 + rng() * 0.3;
+    const dir = new THREE.Vector3(Math.sin(a), -0.5 - rng() * 0.25, Math.cos(a)).normalize();
+    f.quaternion.setFromUnitVectors(up, dir);
+    f.position.copy(top).addScaledVector(dir, 0.8);
     g.add(f);
   }
   g.scale.setScalar(0.85 + rng() * 0.5);

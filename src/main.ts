@@ -261,6 +261,9 @@ async function boot(): Promise<void> {
   if (warp > 0) game.warpTo(warp);
 
   game.start();
+
+  const sim = Number(params.get('sim') ?? 0);
+  if (sim > 0) game.simulate(sim);
 }
 
 void boot();
