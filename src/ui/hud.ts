@@ -260,6 +260,10 @@ export class HUD {
     this.pauseMenu.classList.remove('show');
   }
 
+  isPauseMenuOpen(): boolean {
+    return this.pauseMenu.classList.contains('show');
+  }
+
   /** Radial speed lines on the 2D overlay canvas when going fast. */
   private drawSpeedLines(speedNorm: number): void {
     const c = this.overlay;

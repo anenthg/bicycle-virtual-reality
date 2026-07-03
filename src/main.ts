@@ -232,9 +232,10 @@ async function boot(): Promise<void> {
       openPause();
     }
   };
-  // While a menu is up, Escape/P should still close it
+  // While the pause MENU is up, Escape/P still closes it (input is suspended,
+  // so InputManager won't see the key). Not during the wizard overlay.
   window.addEventListener('keydown', (e) => {
-    if ((e.code === 'KeyP' || e.code === 'Escape') && game.state === 'paused' && input.suspended) {
+    if ((e.code === 'KeyP' || e.code === 'Escape') && hud.isPauseMenuOpen()) {
       hud.hidePauseMenu();
       input.suspended = false;
       game.resume();

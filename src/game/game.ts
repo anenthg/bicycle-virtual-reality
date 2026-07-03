@@ -163,7 +163,7 @@ export class Game {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.05;
+    this.renderer.toneMappingExposure = 1.12;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
@@ -176,9 +176,9 @@ export class Game {
     // ---- lights + fog -------------------------------------------------------
     const fog = new THREE.FogExp2(0xeba36f, 0.0055);
     this.scene.fog = fog;
-    const hemi = new THREE.HemisphereLight(0xbdd4ff, 0x7fae5c, 0.75);
+    const hemi = new THREE.HemisphereLight(0xbdd4ff, 0x7fae5c, 0.85);
     this.scene.add(hemi);
-    this.sun = new THREE.DirectionalLight(0xffd9a8, 2.0);
+    this.sun = new THREE.DirectionalLight(0xffd9a8, 2.2);
     this.sun.castShadow = true;
     this.sun.shadow.mapSize.set(2048, 2048);
     this.sun.shadow.camera.near = 5;
