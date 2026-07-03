@@ -228,6 +228,15 @@ export class Game {
     this.scene.add(this.gate);
   }
 
+  /** Dev helper (?warp=800): begin the run partway down the road. */
+  warpTo(z: number): void {
+    this.rider.z = z;
+    this.rider.prevZ = z;
+    this.gatesPassed = Math.floor(z / GATE_EVERY_M);
+    this.nextGateZ = (this.gatesPassed + 1) * GATE_EVERY_M;
+    this.positionGate();
+  }
+
   start(): void {
     if (this.state !== 'idle') return;
     this.state = 'playing';

@@ -28,6 +28,7 @@ const mat = (color: number, rough = 0.85) =>
 function makeWheel(): THREE.Group {
   const g = new THREE.Group();
   const tire = new THREE.Mesh(new THREE.TorusGeometry(WHEEL_R, 0.055, 10, 20), mat(0x2b2b33, 0.95));
+  tire.rotation.y = Math.PI / 2; // wheel plane along direction of travel (axle on X)
   const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.08, 8), mat(0xcfd6e4, 0.4));
   hub.rotation.z = Math.PI / 2;
   g.add(tire, hub);
@@ -356,14 +357,19 @@ export class Rider {
     stretchBetween(this.legL, hipL, footL.add(new THREE.Vector3(0, 0.06, 0)));
     stretchBetween(this.legR, hipR, footR.add(new THREE.Vector3(0, 0.06, 0)));
 
-    // Blob shadow hugs the ground and thins out with air height
-    const h = clamp(y - (this.airborne ? 0 : y), 0, 3);
-    this.shadowBlob.position.set(0, -y + 0.015 + (this.airborne ? 0 : 0), 0);
-    // While airborne, project the blob down to ground level (y≈ramp/road top is fine)
-    if (this.airborne) this.shadowBlob.position.y = -y + 0.015;
-    const fade = this.airborne ? clamp(1 - h / 3, 0.25, 1) : 1;
-    (this.shadowBlob.material as THREE.MeshBasicMaterial).opacity = 0.22 * fade;
-    const sc = this.airborne ? lerp(1, 0.7, clamp(h / 3, 0, 1)) : 1;
-    this.shadowBlob.scale.set(sc, sc, sc);
+    // Blob shadow: hugs whatever we're riding on; projects to flat ground
+    // (and thins out) while airborne.
+    if (this.airborne) {
+      const h = clamp(y, 0, 3);
+      this.shadowBlob.position.set(0, -y + 0.015, 0);
+      (this.shadowBlob.material as THREE.MeshBasicMaterial).opacity =
+        0.22 * clamp(1 - h / 3, 0.25, 1);
+      const sc = lerp(1, 0.7, clamp(h / 3, 0, 1));
+      this.shadowBlob.scale.set(sc, sc, sc);
+    } else {
+      this.shadowBlob.position.set(0, 0.02, 0);
+      (this.shadowBlob.material as THREE.MeshBasicMaterial).opacity = 0.22;
+      this.shadowBlob.scale.set(1, 1, 1);
+    }
   }
 }

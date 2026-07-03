@@ -267,6 +267,7 @@ export class CollectibleManager {
   private addStar(chunkIndex: number, x: number, y: number, z: number): void {
     const mesh = new THREE.Mesh(STAR_GEO, STAR_MAT);
     mesh.position.set(x, y, z);
+    mesh.scale.setScalar(1.3); // kid-legible at telegraph distance
     mesh.castShadow = true;
     this.scene.add(mesh);
     this.stars.push({ mesh, chunkIndex, collected: false, baseY: y, attracting: false });

@@ -257,6 +257,9 @@ async function boot(): Promise<void> {
     setupFakeInput(input, params);
   }
 
+  const warp = Number(params.get('warp') ?? 0);
+  if (warp > 0) game.warpTo(warp);
+
   game.start();
 }
 
