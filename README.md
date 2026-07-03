@@ -43,7 +43,12 @@ Localhost is a secure context, so the camera works without any HTTPS setup.
    of the handlebars, outside the grips:
    - **left** end: neon **green**
    - **right** end: neon **pink or orange**
-4. Check the camera view during calibration: both markers must stay in frame
+4. *(Optional but recommended)* Add a **third neon-blue** sticker on the bike
+   **frame** — the stem or top tube, somewhere that does **not** turn with the
+   handlebars. This lets the tracker tell *steering* apart from *leaning the
+   whole bike*, so a wobble/lean is no longer misread as a turn. Skip it and the
+   game runs in plain 2-marker mode (leaning will read as steering).
+5. Check the camera view during calibration: all markers must stay in frame
    with margin when the bars turn fully left and right.
 
 ## Calibration (under a minute)
@@ -52,10 +57,18 @@ Click **🎥 Ride with camera** and follow the giant buttons:
 
 1. **Tap the left sticker, then the right one** in the picture. A colored ring
    appears on each when it's locked.
-2. **Hold the handlebars straight** → Ready.
-3. **Turn all the way left** → Ready. Watch the green dot: if it moves the
+2. **Tap the blue frame sticker** (or press **⏭️ Skip** if you didn't add one).
+3. **Hold the handlebars straight, bike level** → Ready. This records the
+   "upright" reference used to cancel out leaning.
+4. **Turn all the way left** → Ready. Watch the green dot: if it moves the
    *wrong* way, press **🔄 Flip direction** first.
-4. **Turn all the way right** → Ready. Done — ride!
+5. **Turn all the way right** → Ready. Done — ride!
+
+> **How lean cancellation works:** the tracker measures the tilt of the line
+> between the two grip stickers. Both *steering* and *leaning the whole bike*
+> tilt that line, so they're ambiguous with two markers. The frame sticker gives
+> a fixed "level" reference: the tracker subtracts the frame's roll, leaving pure
+> steering. Keep the bike upright during calibration so the reference is honest.
 
 The calibration is saved in your browser. Next time you can press
 **🎥 Ride! (last calibration)** and skip straight to the game. You can
@@ -98,6 +111,7 @@ http://localhost:5173/?fake=slider          # on-screen steering slider
 | Problem | Fix |
 |---|---|
 | Steering feels reversed | Pause → Recalibrate → at step "turn left", press **Flip direction** |
+| Leaning/wobbling the bike steers it | Add the neon-blue **frame** sticker and recalibrate (enables lean cancellation) |
 | "Tracking lost" keeps appearing | More light on the handlebars; move the laptop closer; re-tap the markers (colors change at dusk) |
 | Ring only on one marker | That tape is out of frame or too dark — raise the laptop, re-run calibration |
 | Markers confused with the game screen colors | Use *saturated neon* tape and avoid colors close to the game's dominant hues (sky orange, grass green is OK if tape is neon) |

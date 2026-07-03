@@ -6,6 +6,14 @@ import { DEFAULT_STEER_SIGN, LS } from '../shared/types';
 
 export type WizardStep = 'left-marker' | 'right-marker' | 'center' | 'left-limit' | 'right-limit' | 'done';
 
+/** Neon-blue default so the frame-marker guide dot shows before it's sampled. */
+export const DEFAULT_FRAME_WINDOW: HSVWindow = {
+  hueMin: 185,
+  hueMax: 235,
+  satMin: 0.35,
+  valMin: 0.25,
+};
+
 export const WIZARD_ORDER: WizardStep[] = [
   'left-marker',
   'right-marker',
@@ -46,6 +54,10 @@ export interface DraftProfile {
   barLength: number;
   expectedArea: number;
   steerSign: 1 | -1;
+  /** Optional frame-marker window (lean cancellation); null if skipped. */
+  frame: HSVWindow | null;
+  /** Rest angle of frame→bar-midpoint line, recorded at the straight step. */
+  leanRestDeg: number | null;
 }
 
 export function newDraft(prev?: CalibrationProfile | null): DraftProfile {
@@ -59,6 +71,8 @@ export function newDraft(prev?: CalibrationProfile | null): DraftProfile {
     barLength: 0.4,
     expectedArea: 60,
     steerSign: prev?.steerSign ?? DEFAULT_STEER_SIGN,
+    frame: null,
+    leanRestDeg: null,
   };
 }
 
@@ -72,6 +86,9 @@ export function finalizeDraft(d: DraftProfile): CalibrationProfile | null {
   ) {
     return null;
   }
+  // Only enable lean cancellation when BOTH the frame window and its rest
+  // angle were captured; otherwise fall back to 2-marker mode cleanly.
+  const leanReady = d.frame !== null && d.leanRestDeg !== null;
   return {
     version: 2,
     left: d.left,
@@ -83,6 +100,7 @@ export function finalizeDraft(d: DraftProfile): CalibrationProfile | null {
     barLength: d.barLength,
     expectedArea: d.expectedArea,
     steerSign: d.steerSign,
+    ...(leanReady ? { frame: d.frame!, leanRestDeg: d.leanRestDeg! } : {}),
   };
 }
 
@@ -100,5 +118,10 @@ export function draftToProvisionalProfile(d: DraftProfile): CalibrationProfile |
     barLength: d.barLength,
     expectedArea: d.expectedArea,
     steerSign: d.steerSign,
+    // Show a live frame dot during the wizard: the tapped window once sampled,
+    // else a default blue window to guide aiming. leanRestDeg is left out until
+    // the straight step records it, so no compensation happens mid-calibration.
+    frame: d.frame ?? DEFAULT_FRAME_WINDOW,
+    ...(d.leanRestDeg != null ? { leanRestDeg: d.leanRestDeg } : {}),
   };
 }

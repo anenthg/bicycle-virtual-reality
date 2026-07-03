@@ -42,6 +42,18 @@ export interface CalibrationProfile {
   expectedArea: number;
   /** +1 or -1; folds front-camera mirroring into one flippable constant. */
   steerSign: 1 | -1;
+  /**
+   * Optional third marker on the FIXED frame (not the steering assembly). When
+   * present, the tracker separates steering from whole-bike lean: a lean rolls
+   * the frame marker too, so it can be cancelled out. Absent => 2-marker mode.
+   */
+  frame?: HSVWindow;
+  /**
+   * Image-plane angle (deg) of the line from the frame marker to the grips'
+   * midpoint, recorded with the bike straight AND upright. Runtime lean is the
+   * deviation of that angle from this rest value.
+   */
+  leanRestDeg?: number;
 }
 
 /** Detected marker centroid, normalized 0..1 in RAW (unmirrored) frame coords. */
@@ -56,6 +68,8 @@ export interface TrackerReport {
   steer: SteerState;
   left: MarkerPoint | null;
   right: MarkerPoint | null;
+  /** Optional fixed-frame reference marker (lean cancellation). */
+  frame: MarkerPoint | null;
   /** Milliseconds the detector spent on this frame. */
   workerMs: number;
 }

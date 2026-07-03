@@ -105,6 +105,7 @@ export class PiP {
       const dots: [typeof report.left, string][] = [
         [report.left, '#39ff6a'],
         [report.right, '#ff4fd8'],
+        [report.frame, '#4fb8ff'],
       ];
       for (const [pt, color] of dots) {
         if (!pt) continue;

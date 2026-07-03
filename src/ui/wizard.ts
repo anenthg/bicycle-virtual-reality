@@ -52,8 +52,21 @@ const STYLE = /* css */ `
 .wiz .stepdots div.on { background: #ffd93d; }
 `;
 
-type Phase = 'left-marker' | 'right-marker' | 'center' | 'left-limit' | 'right-limit';
-const PHASES: Phase[] = ['left-marker', 'right-marker', 'center', 'left-limit', 'right-limit'];
+type Phase =
+  | 'left-marker'
+  | 'right-marker'
+  | 'frame-marker'
+  | 'center'
+  | 'left-limit'
+  | 'right-limit';
+const PHASES: Phase[] = [
+  'left-marker',
+  'right-marker',
+  'frame-marker',
+  'center',
+  'left-limit',
+  'right-limit',
+];
 
 const COPY: Record<Phase, { title: string; sub: string; button: string | null }> = {
   'left-marker': {
@@ -66,18 +79,23 @@ const COPY: Record<Phase, { title: string; sub: string; button: string | null }>
     sub: 'Tap the tape on the RIGHT handlebar end. A ring means we can see it!',
     button: null,
   },
+  'frame-marker': {
+    title: '3️⃣ Tap the FRAME sticker 🟦 (optional)',
+    sub: 'A sticker on the bike FRAME (stem or top tube — not the handlebars) lets us tell steering from leaning. Tap it, or press Skip.',
+    button: null,
+  },
   center: {
-    title: '3️⃣ Hold the handlebars straight',
-    sub: 'Sit ready to ride, bars pointing forward — then press Ready.',
+    title: '4️⃣ Hold the handlebars straight',
+    sub: 'Sit upright, bike level, bars pointing forward — then press Ready.',
     button: '✅ Ready',
   },
   'left-limit': {
-    title: '4️⃣ Turn all the way LEFT ⬅️',
+    title: '5️⃣ Turn all the way LEFT ⬅️',
     sub: 'Hold the bars at full left. The green dot below should move LEFT — if it goes the wrong way, press Flip.',
     button: '✅ Ready',
   },
   'right-limit': {
-    title: '5️⃣ Turn all the way RIGHT ➡️',
+    title: '6️⃣ Turn all the way RIGHT ➡️',
     sub: 'Hold the bars at full right, then press Ready. Almost done!',
     button: '✅ Ready',
   },
@@ -112,6 +130,7 @@ export function runWizard(
       <div class="wiz-row">
         <button class="ready" style="display:none">✅ Ready</button>
         <button class="secondary flip" style="display:none">🔄 Flip direction</button>
+        <button class="secondary skipframe" style="display:none">⏭️ Skip (no frame sticker)</button>
       </div>
     `;
     parent.appendChild(el);
@@ -124,6 +143,7 @@ export function runWizard(
     const pin = el.querySelector<HTMLDivElement>('.wiz-needle .pin')!;
     const readyBtn = el.querySelector<HTMLButtonElement>('.ready')!;
     const flipBtn = el.querySelector<HTMLButtonElement>('.flip')!;
+    const skipFrameBtn = el.querySelector<HTMLButtonElement>('.skipframe')!;
     const dots = [...el.querySelectorAll<HTMLDivElement>('.stepdots div')];
 
     // Size the preview to viewport (4:3)
@@ -156,12 +176,13 @@ export function runWizard(
       readyBtn.disabled = false;
       needle.style.display = p === 'center' || p === 'left-limit' || p === 'right-limit' ? 'block' : 'none';
       flipBtn.style.display = p === 'left-limit' || p === 'right-limit' ? 'inline-block' : 'none';
+      skipFrameBtn.style.display = p === 'frame-marker' ? 'inline-block' : 'none';
     };
     setPhase('left-marker');
 
     // ---- marker tap sampling -------------------------------------------------
     canvas.addEventListener('click', (e) => {
-      if (phase !== 'left-marker' && phase !== 'right-marker') return;
+      if (phase !== 'left-marker' && phase !== 'right-marker' && phase !== 'frame-marker') return;
       const rect = canvas.getBoundingClientRect();
       const dispX = (e.clientX - rect.left) / rect.width;
       const dispY = (e.clientY - rect.top) / rect.height;
@@ -172,10 +193,21 @@ export function runWizard(
       if (phase === 'left-marker') {
         draft.left = win;
         setPhase('right-marker');
-      } else {
+      } else if (phase === 'right-marker') {
         draft.right = win;
+        setPhase('frame-marker');
+      } else {
+        draft.frame = win;
         setPhase('center');
       }
+      tracker.setProfile(draftToProvisionalProfile(draft));
+    });
+
+    // ---- skip the (optional) frame marker → 2-marker mode ----------------------
+    skipFrameBtn.addEventListener('click', () => {
+      draft.frame = null;
+      draft.leanRestDeg = null;
+      setPhase('center');
       tracker.setProfile(draftToProvisionalProfile(draft));
     });
 
@@ -195,12 +227,18 @@ export function runWizard(
       const mids: number[] = [];
       const lens: number[] = [];
       const areas: number[] = [];
+      const leans: number[] = []; // frame→bar-midpoint tilt, for leanRestDeg
       const un = tracker.onReport((r) => {
         if (r.left && r.right) {
           samples.push(r.steer.raw);
-          mids.push((r.left.x + r.right.x) / 2);
+          const midX = (r.left.x + r.right.x) / 2;
+          const midY = (r.left.y + r.right.y) / 2;
+          mids.push(midX);
           lens.push(Math.abs(r.right.x - r.left.x));
           areas.push(Math.min(r.left.area, r.right.area));
+          if (draft.frame && r.frame) {
+            leans.push((Math.atan2(midY - r.frame.y, midX - r.frame.x) * 180) / Math.PI);
+          }
         }
       });
       setTimeout(() => {
@@ -220,6 +258,17 @@ export function runWizard(
           draft.centerMidX = mids.reduce((a, b) => a + b, 0) / mids.length;
           draft.barLength = lens.reduce((a, b) => a + b, 0) / lens.length;
           draft.expectedArea = areas.reduce((a, b) => a + b, 0) / areas.length;
+          // Frame marker seen throughout the straight hold → record the lean
+          // rest angle so runtime can cancel whole-bike lean. Otherwise drop
+          // to 2-marker mode (frame stays null in the final profile).
+          if (draft.frame && leans.length >= 3) {
+            const lref = leans[0];
+            draft.leanRestDeg =
+              lref + leans.reduce((a, s) => a + wrapDeg(s - lref), 0) / leans.length;
+          } else {
+            draft.frame = null;
+            draft.leanRestDeg = null;
+          }
           setPhase('left-limit');
         } else if (phase === 'left-limit') {
           draft.leftMaxDeg = avg;
@@ -250,6 +299,7 @@ export function runWizard(
       const ringz: [typeof r.left, string][] = [
         [r.left, '#39ff6a'],
         [r.right, '#ff4fd8'],
+        [r.frame, '#4fb8ff'],
       ];
       for (const [pt, color] of ringz) {
         if (!pt) continue;

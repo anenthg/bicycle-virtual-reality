@@ -47,7 +47,10 @@ export class SteerPipeline {
     // No calibration yet: wizard mode. Detect with whatever windows exist so
     // the wizard can show live centroid dots, but report state 'calibrating'.
     const windows = p ?? provisional;
-    const { left, right } = detectMarkers(data, procW, procH, windows.left, windows.right);
+    const frameWin = windows.frame ?? (p ? undefined : provisional.frame);
+    const { left, right, frame } = detectMarkers(
+      data, procW, procH, windows.left, windows.right, frameWin,
+    );
 
     let rawDeg = this.lastGoodRaw;
     let angle = this.lastGoodAngle;
@@ -56,9 +59,22 @@ export class SteerPipeline {
     let state: TrackerReport['steer']['state'] = p ? 'tracking' : 'calibrating';
 
     if (left && right) {
-      // atan2 on RAW (unmirrored) coords; mirroring is folded into steerSign.
-      rawDeg =
+      // Bar-line tilt on RAW (unmirrored) coords; mirroring is folded into steerSign.
+      const barTilt =
         (Math.atan2(right.y - left.y, right.x - left.x) * 180) / Math.PI;
+
+      // Lean cancellation: with a calibrated frame marker, a whole-bike lean
+      // rolls the frame→bar-midpoint line by the same angle it rolls the bar
+      // line, so subtracting it leaves pure steering. Steering barely moves the
+      // grips' midpoint (it sits on the steering axis), so it survives.
+      let lean = 0;
+      if (p?.frame && p.leanRestDeg != null && frame) {
+        const midX = (left.x + right.x) / 2;
+        const midY = (left.y + right.y) / 2;
+        const leanNow = (Math.atan2(midY - frame.y, midX - frame.x) * 180) / Math.PI;
+        lean = wrapDeg(leanNow - p.leanRestDeg);
+      }
+      rawDeg = wrapDeg(barTilt - lean);
 
       if (p) {
         // Image-space deflection from center. The two recorded locks give the
@@ -111,14 +127,16 @@ export class SteerPipeline {
       steer: { ts, angle, raw: rawDeg, offset, quality, state },
       left,
       right,
+      frame,
       workerMs: detectMs(),
     };
   }
 }
 
-// Neon green + neon pink/orange defaults so the wizard shows dots even before
-// the first patch is sampled (helps a parent aim the tape at the camera).
+// Neon green + neon pink/orange + neon blue defaults so the wizard shows dots
+// even before patches are sampled (helps a parent aim the tape at the camera).
 const provisional = {
   left: { hueMin: 75, hueMax: 165, satMin: 0.35, valMin: 0.25 },
   right: { hueMin: 300, hueMax: 350, satMin: 0.35, valMin: 0.25 },
+  frame: { hueMin: 185, hueMax: 235, satMin: 0.35, valMin: 0.25 },
 };
