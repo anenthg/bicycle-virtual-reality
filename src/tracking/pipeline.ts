@@ -139,6 +139,6 @@ export class SteerPipeline {
 // (Calibration re-samples the exact tapped color, so other colors still work.)
 const provisional = {
   left: { hueMin: 62, hueMax: 98, satMin: 0.4, valMin: 0.35 }, // lime-green
-  right: { hueMin: 320, hueMax: 359, satMin: 0.38, valMin: 0.3 }, // pink/magenta
+  right: { hueMin: 320, hueMax: 359, satMin: 0.5, valMin: 0.3 }, // pink/magenta (high sat floor vs warm floors)
   frame: { hueMin: 185, hueMax: 235, satMin: 0.35, valMin: 0.25 }, // blue
 };

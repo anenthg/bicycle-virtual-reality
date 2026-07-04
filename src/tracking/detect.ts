@@ -121,12 +121,17 @@ export function patchToWindow(data: Uint8ClampedArray): HSVWindow {
   const avgS = sSum / n;
   const avgV = vSum / n;
 
-  // ±15° hue window, generous sat/val floors (spec §4 wizard step 1).
+  // ±15° hue window. The saturation floor is a firm fraction of the sampled
+  // tape's saturation: warm-neutral backgrounds (floors, walls, wood, skin)
+  // sit in the red/orange hue range at moderate saturation, so a red/pink/
+  // magenta marker needs a high floor to reject them. Gating at ~0.66× the
+  // vivid tape's saturation isolates the marker; the 0.30 floor keeps it sane
+  // for less-saturated tape. (Verified against a magenta grip over a warm floor.)
   const HUE_TOL = 15;
   return {
     hueMin: (hue - HUE_TOL + 360) % 360,
     hueMax: (hue + HUE_TOL) % 360,
-    satMin: Math.max(0.22, avgS * 0.5),
+    satMin: Math.max(0.3, avgS * 0.66),
     valMin: Math.max(0.15, avgV * 0.4),
   };
 }
