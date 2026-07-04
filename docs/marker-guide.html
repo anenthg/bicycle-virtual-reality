@@ -6,7 +6,7 @@
 <title>Endless Rider — Marker Tape Guide</title>
 <style>
   :root{
-    --green:#39FF6A; --pink:#FF4FD8; --blue:#4FB8FF;
+    --red:#FF5A5A; --green:#39FF6A; --blue:#4FB8FF;
     --ink:#1c1533; --muted:#6b6482; --card:#ffffff; --line:#e7e3f2;
     --font: ui-rounded, "SF Pro Rounded", Quicksand, "Trebuchet MS", system-ui, sans-serif;
   }
@@ -20,15 +20,11 @@
   header{text-align:center;margin-bottom:34px}
   h1{font-size:clamp(30px,5vw,52px);margin:0 0 8px;letter-spacing:-.01em}
   .sub{color:var(--muted);font-size:clamp(15px,2vw,20px);margin:0}
-  .emoji{font-size:1.1em}
 
-  /* swatch cards */
   .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:30px 0 40px}
   @media(max-width:720px){.cards{grid-template-columns:1fr}}
-  .card{
-    background:var(--card);border:1px solid var(--line);border-radius:22px;
-    padding:0;overflow:hidden;box-shadow:0 10px 30px rgba(60,30,90,.08)
-  }
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;
+    overflow:hidden;box-shadow:0 10px 30px rgba(60,30,90,.08)}
   .chip{height:118px;display:flex;align-items:flex-end;justify-content:space-between;
     padding:14px 16px;color:#0d0a18;font-weight:800}
   .chip .role{font-size:15px;opacity:.85}
@@ -40,7 +36,6 @@
     font-size:14px;background:#f4f1fb;border-radius:10px;padding:6px 10px;border:1px solid var(--line)}
   .dot{width:12px;height:12px;border-radius:50%}
 
-  /* diagram */
   .panel{background:var(--card);border:1px solid var(--line);border-radius:24px;
     padding:26px;box-shadow:0 10px 30px rgba(60,30,90,.07);margin-bottom:26px}
   .panel h2{margin:0 0 4px;font-size:24px}
@@ -49,7 +44,6 @@
   .lbl{font-family:var(--font);font-weight:800;font-size:15px}
   .lbl.s{font-size:13px;font-weight:700}
 
-  /* do / don't */
   .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   @media(max-width:720px){.two{grid-template-columns:1fr}}
   .list{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px 22px;
@@ -61,6 +55,8 @@
   .do li::before{content:"✅"}
   .dont li::before{content:"🚫"}
 
+  .warn{margin:0 0 26px;background:linear-gradient(120deg,#fff1e0,#ffe0e0);
+    border:1px solid #f6cdbd;border-radius:18px;padding:16px 20px;font-size:15px;color:#7a3a2a}
   .note{margin-top:26px;background:linear-gradient(120deg,#efe8ff,#ffe9fb);
     border:1px solid var(--line);border-radius:18px;padding:16px 20px;font-size:15px;color:#40355f}
   .wheelwrap{display:flex;gap:26px;align-items:center;flex-wrap:wrap;justify-content:center}
@@ -75,22 +71,21 @@
     <p class="sub">Three neon tape bands let the camera steer the game — and tell a <b>turn</b> apart from a <b>lean</b>.</p>
   </header>
 
-  <!-- SWATCHES -->
   <div class="cards">
     <div class="card">
-      <div class="chip" style="background:var(--green)"><span class="role">LEFT grip</span><span class="num">1</span></div>
+      <div class="chip" style="background:var(--red)"><span class="role">LEFT grip</span><span class="num">1</span></div>
       <div class="body">
-        <h3>Neon Green</h3>
-        <p>Wrap the <b>left</b> handlebar end (rider's left), outside the grip.</p>
-        <span class="hex"><span class="dot" style="background:var(--green)"></span>#39FF6A</span>
+        <h3>Neon Red</h3>
+        <p>Wrap the <b>left</b> handlebar end, outside the grip.</p>
+        <span class="hex"><span class="dot" style="background:var(--red)"></span>#FF5A5A</span>
       </div>
     </div>
     <div class="card">
-      <div class="chip" style="background:var(--pink)"><span class="role">RIGHT grip</span><span class="num">2</span></div>
+      <div class="chip" style="background:var(--green)"><span class="role">RIGHT grip</span><span class="num">2</span></div>
       <div class="body">
-        <h3>Neon Magenta / Pink</h3>
+        <h3>Neon Green</h3>
         <p>Wrap the <b>right</b> handlebar end, outside the grip.</p>
-        <span class="hex"><span class="dot" style="background:var(--pink)"></span>#FF4FD8</span>
+        <span class="hex"><span class="dot" style="background:var(--green)"></span>#39FF6A</span>
       </div>
     </div>
     <div class="card">
@@ -103,7 +98,13 @@
     </div>
   </div>
 
-  <!-- PLACEMENT DIAGRAM -->
+  <div class="warn">
+    ⚠️ <b>The #1 rule: don't reuse a color your bike or room already has.</b> The tracker locks onto a color, so a
+    <b>yellow sticker on a yellow bike</b>, or an <b>orange/red sticker in front of warm wooden furniture</b>, gets
+    swamped by the bigger matching area and points at the wrong place. Red / green / blue are chosen to dodge skin,
+    wood, and most bike frames — but glance at your own bike + background and swap any color that collides.
+  </div>
+
   <div class="panel">
     <h2>Where each band goes</h2>
     <p class="hint">This is roughly what your laptop camera sees, looking at the front of the bike.</p>
@@ -116,92 +117,73 @@
           <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#3a2a5a" flood-opacity="0.18"/>
         </filter>
       </defs>
-
-      <!-- stem down to frame -->
       <rect x="432" y="196" width="36" height="150" rx="16" fill="url(#bar)"/>
-      <!-- top tube (frame) going back -->
       <rect x="300" y="322" width="300" height="30" rx="15" fill="url(#bar)"/>
-
-      <!-- handlebar -->
       <rect x="150" y="196" width="600" height="40" rx="20" fill="url(#bar)" filter="url(#soft)"/>
-
-      <!-- grips -->
-      <rect x="150" y="192" width="96" height="48" rx="22" fill="#39FF6A" stroke="#1f9e45" stroke-width="3"/>
-      <rect x="654" y="192" width="96" height="48" rx="22" fill="#FF4FD8" stroke="#b52f9c" stroke-width="3"/>
-      <!-- frame band -->
+      <rect x="150" y="192" width="96" height="48" rx="22" fill="#FF5A5A" stroke="#c53a3a" stroke-width="3"/>
+      <rect x="654" y="192" width="96" height="48" rx="22" fill="#39FF6A" stroke="#1f9e45" stroke-width="3"/>
       <rect x="392" y="318" width="120" height="38" rx="16" fill="#4FB8FF" stroke="#2b7fc0" stroke-width="3"/>
-
-      <!-- labels -->
-      <text x="198" y="150" text-anchor="middle" class="lbl" fill="#159a43">① LEFT · green</text>
-      <line x1="198" y1="160" x2="198" y2="188" stroke="#159a43" stroke-width="3"/>
-      <text x="702" y="150" text-anchor="middle" class="lbl" fill="#b52f9c">② RIGHT · magenta</text>
-      <line x1="702" y1="160" x2="702" y2="188" stroke="#b52f9c" stroke-width="3"/>
+      <text x="198" y="150" text-anchor="middle" class="lbl" fill="#c53a3a">① LEFT · red</text>
+      <line x1="198" y1="160" x2="198" y2="188" stroke="#c53a3a" stroke-width="3"/>
+      <text x="702" y="150" text-anchor="middle" class="lbl" fill="#159a43">② RIGHT · green</text>
+      <line x1="702" y1="160" x2="702" y2="188" stroke="#159a43" stroke-width="3"/>
       <text x="452" y="410" text-anchor="middle" class="lbl" fill="#2277bd">③ FRAME · blue</text>
       <line x1="452" y1="360" x2="452" y2="396" stroke="#2277bd" stroke-width="3"/>
-
       <text x="450" y="452" text-anchor="middle" class="lbl s" fill="#6b6482">
         Bands ~3–4 cm wide · grips on the bar ENDS (outside the hands) · frame band on the non-steering tube
       </text>
     </svg>
   </div>
 
-  <!-- HUE SEPARATION -->
   <div class="panel">
     <h2>Why these three?</h2>
     <div class="wheelwrap">
       <svg width="230" height="230" viewBox="0 0 230 230" aria-label="Color wheel with the three marker hues">
         <circle cx="115" cy="115" r="104" fill="none" stroke="#eee" stroke-width="22"/>
-        <!-- ticks around a wheel: 0° at right, going clockwise = increasing hue in screen space -->
-        <!-- green ~135°, blue ~205°, magenta ~315°. place with angle = -hue so it reads naturally -->
-        <g>
-          <!-- green 135° -->
-          <circle cx="115" cy="115" r="104" fill="none" stroke="#39FF6A" stroke-width="22"
-            stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-135 115 115)"/>
-          <!-- blue 205° -->
-          <circle cx="115" cy="115" r="104" fill="none" stroke="#4FB8FF" stroke-width="22"
-            stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-205 115 115)"/>
-          <!-- magenta 315° -->
-          <circle cx="115" cy="115" r="104" fill="none" stroke="#FF4FD8" stroke-width="22"
-            stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-315 115 115)"/>
-        </g>
+        <circle cx="115" cy="115" r="104" fill="none" stroke="#FF5A5A" stroke-width="22"
+          stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-352 115 115)"/>
+        <circle cx="115" cy="115" r="104" fill="none" stroke="#39FF6A" stroke-width="22"
+          stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-135 115 115)"/>
+        <circle cx="115" cy="115" r="104" fill="none" stroke="#4FB8FF" stroke-width="22"
+          stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-205 115 115)"/>
         <text x="115" y="120" text-anchor="middle" font-size="15" fill="#6b6482" font-family="ui-rounded,sans-serif" font-weight="700">hue wheel</text>
       </svg>
       <div class="wheel-caption">
-        The three hues are spaced roughly evenly around the wheel, so the tracker can tell them apart even in
-        dim light or slight blur. Just as important: <b>green, blue and magenta don't appear on skin, wood,
-        cardboard or most walls</b>, so the background won't create false blobs — unlike red, orange or brown.
+        The three hues sit far apart on the wheel, so the tracker tells them apart even in dim light or slight blur.
+        And <b>red, green and blue don't appear on skin, wood, or most walls and bikes</b>, so the background won't
+        create false blobs — unlike orange/yellow (wood, warm light, many frames) or cyan (too close to the blue).
       </div>
     </div>
   </div>
 
-  <!-- DO / DON'T -->
   <div class="two">
     <div class="list do">
       <h3>👍 Do</h3>
       <ul>
-        <li>Use <b>matte fluorescent</b> tape or stickers — the brighter and more saturated, the better.</li>
+        <li>Use <b>matte fluorescent</b> tape — the brighter and more saturated, the better.</li>
         <li>Make each band <b>~3–4 cm wide</b> so it's a solid blob to the camera.</li>
-        <li>Put grips on the very <b>ends</b> of the bars, outside where the hands sit, so fingers never cover them.</li>
-        <li>Put the blue band where the camera sees it clearly and it <b>doesn't turn</b> with the bars.</li>
-        <li>Raise the laptop so it sees the bars roughly <b>head-on</b>.</li>
+        <li>Put grips on the very <b>ends</b> of the bars, outside where the hands sit.</li>
+        <li>Put the blue band where the camera sees it and it <b>doesn't turn</b> with the bars.</li>
+        <li>Glance at your bike + background first and <b>swap any color they share</b>.</li>
       </ul>
     </div>
     <div class="list dont">
       <h3>👎 Avoid</h3>
       <ul>
+        <li>A marker color your <b>bike frame</b> already is (yellow sticker on a yellow bike, etc.).</li>
+        <li><b>Orange / warm colors</b> in front of wooden furniture or warm lighting.</li>
+        <li>Two markers in the <b>same family</b> (e.g. light-blue grip + blue frame).</li>
         <li><b>Glossy / metallic</b> tape — glare blows out to white and loses its color.</li>
-        <li><b>Red, orange, brown, skin tones</b> — too close to hands, wood and warm lighting.</li>
-        <li>Two markers the <b>same-ish color</b> — keep green, magenta and blue distinct.</li>
-        <li>Tiny or narrow strips — thin tape becomes an unreliable dot at a distance.</li>
-        <li>A blue band on the <b>stem/bars that rotate</b> — it must be on the fixed frame.</li>
+        <li>Tiny or narrow strips, or a blue band on the parts that <b>rotate</b>.</li>
       </ul>
     </div>
   </div>
 
   <div class="note">
-    💡 <b>These are the app's default colors.</b> During calibration you'll see a matching green, magenta and
-    blue ring snap onto each band automatically — that's your confirmation the camera has locked on. No blue
-    band? Just press <b>Skip</b> in the wizard and the game runs in two-marker mode (leaning will read as steering).
+    💡 <b>These are the app's default colors.</b> During calibration you'll see a matching red, green and blue ring
+    snap onto each band — that's your confirmation the camera locked on. Any three <i>distinct, saturated</i> colors
+    also work: the wizard samples whatever you tap. No frame band? Press <b>Skip</b> for two-marker mode (leaning
+    will read as steering).
   </div>
 </div>
 </body>

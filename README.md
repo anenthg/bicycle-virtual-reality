@@ -41,13 +41,20 @@ Localhost is a secure context, so the camera works without any HTTPS setup.
    **Raise the laptop** (books work) until the camera sees the bars head-on.
 3. Wrap **two bands of bright neon tape (~3–4 cm wide)** around the very ends
    of the handlebars, outside the grips:
-   - **left** end: neon **green**
-   - **right** end: neon **pink or orange**
+   - **left** end: neon **red**
+   - **right** end: neon **green**
 4. *(Optional but recommended)* Add a **third neon-blue** sticker on the bike
    **frame** — the stem or top tube, somewhere that does **not** turn with the
    handlebars. This lets the tracker tell *steering* apart from *leaning the
    whole bike*, so a wobble/lean is no longer misread as a turn. Skip it and the
    game runs in plain 2-marker mode (leaning will read as steering).
+
+   **Pick colors your bike and room don't already have.** The tracker locks onto
+   a color, so a marker that matches your frame (e.g. a yellow sticker on a
+   yellow bike) or the furniture behind it (warm wood ≈ orange/red) will confuse
+   it. Red / green / blue are the defaults because they're far apart and rare in
+   bikes and rooms. Any three distinct, saturated colors work — calibration
+   samples whatever you tap.
 5. Check the camera view during calibration: all markers must stay in frame
    with margin when the bars turn fully left and right.
 

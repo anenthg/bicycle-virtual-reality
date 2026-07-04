@@ -101,10 +101,10 @@ export class PiP {
 
     const report = this.tracker.latest;
     if (report) {
-      // Marker dots (mirror x to match the preview)
+      // Marker dots (mirror x to match the preview): red left, green right, blue frame
       const dots: [typeof report.left, string][] = [
-        [report.left, '#39ff6a'],
-        [report.right, '#ff4fd8'],
+        [report.left, '#ff5a5a'],
+        [report.right, '#39ff6a'],
         [report.frame, '#4fb8ff'],
       ];
       for (const [pt, color] of dots) {

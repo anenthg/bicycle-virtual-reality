@@ -70,12 +70,12 @@ const PHASES: Phase[] = [
 
 const COPY: Record<Phase, { title: string; sub: string; button: string | null }> = {
   'left-marker': {
-    title: '1️⃣ Tap the LEFT sticker 🟩',
+    title: '1️⃣ Tap the LEFT sticker 🟥',
     sub: 'Find the bright tape on the LEFT handlebar end in the picture and tap right on it.',
     button: null,
   },
   'right-marker': {
-    title: '2️⃣ Now tap the RIGHT sticker 🟪',
+    title: '2️⃣ Now tap the RIGHT sticker 🟩',
     sub: 'Tap the tape on the RIGHT handlebar end. A ring means we can see it!',
     button: null,
   },
@@ -91,7 +91,7 @@ const COPY: Record<Phase, { title: string; sub: string; button: string | null }>
   },
   'left-limit': {
     title: '5️⃣ Turn all the way LEFT ⬅️',
-    sub: 'Hold the bars at full left. The green dot below should move LEFT — if it goes the wrong way, press Flip.',
+    sub: 'Hold the bars at full left. The pointer below should move LEFT — if it goes the wrong way, press Flip.',
     button: '✅ Ready',
   },
   'right-limit': {
@@ -297,8 +297,8 @@ export function runWizard(
       const r = tracker.latest;
       if (!r) return;
       const ringz: [typeof r.left, string][] = [
-        [r.left, '#39ff6a'],
-        [r.right, '#ff4fd8'],
+        [r.left, '#ff5a5a'],
+        [r.right, '#39ff6a'],
         [r.frame, '#4fb8ff'],
       ];
       for (const [pt, color] of ringz) {

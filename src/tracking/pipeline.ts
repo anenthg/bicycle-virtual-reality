@@ -133,10 +133,12 @@ export class SteerPipeline {
   }
 }
 
-// Neon green + neon pink/orange + neon blue defaults so the wizard shows dots
-// even before patches are sampled (helps a parent aim the tape at the camera).
+// Default hue windows so the wizard shows guide dots before patches are
+// sampled. Tuned for red (left grip) / green (right grip) / blue (frame) —
+// a trio that stays clear of skin, warm wood, and a yellow bike frame.
+// (Calibration re-samples the exact tapped color, so other colors still work.)
 const provisional = {
-  left: { hueMin: 75, hueMax: 165, satMin: 0.35, valMin: 0.25 },
-  right: { hueMin: 300, hueMax: 350, satMin: 0.35, valMin: 0.25 },
-  frame: { hueMin: 185, hueMax: 235, satMin: 0.35, valMin: 0.25 },
+  left: { hueMin: 335, hueMax: 12, satMin: 0.4, valMin: 0.3 }, // red (wraps 0°)
+  right: { hueMin: 90, hueMax: 165, satMin: 0.4, valMin: 0.3 }, // green
+  frame: { hueMin: 185, hueMax: 235, satMin: 0.35, valMin: 0.25 }, // blue
 };
