@@ -124,15 +124,26 @@ export function detectMarkers(
  * HSV window. Hue is averaged as a vector so red wraparound works.
  */
 export function patchToWindow(data: Uint8ClampedArray): HSVWindow {
+  // Two accumulators: one over the COLORED pixels (sat above a floor) and one
+  // over all pixels. A bright LED blows its center out to near-white — those
+  // desaturated core pixels would drag the average saturation down and make the
+  // window far too loose. So we characterize the marker from its colored ring
+  // (hue + saturation), and only fall back to the whole patch if almost nothing
+  // is colored. peakV (the brightest pixel) tells us if it's a self-lit source.
   let cos = 0, sin = 0, sSum = 0, vSum = 0, n = 0;
+  let vAll = 0, nAll = 0, peakV = 0;
+  const COLOR_SAT = 0.28;
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i], g = data[i + 1], b = data[i + 2];
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
-    const d = max - min;
     if (max === 0) continue;
+    const d = max - min;
     const s = d / max;
     const v = max / 255;
+    vAll += v; nAll++;
+    if (v > peakV) peakV = v;
+    if (s < COLOR_SAT) continue; // skip the blown-white core / gray pixels
     let h: number;
     if (d === 0) h = 0;
     else if (max === r) h = 60 * (((g - b) / d) % 6);
@@ -146,24 +157,41 @@ export function patchToWindow(data: Uint8ClampedArray): HSVWindow {
     vSum += v;
     n++;
   }
-  if (n === 0) return { hueMin: 0, hueMax: 30, satMin: 0.4, valMin: 0.3 };
+  if (nAll === 0) return { hueMin: 0, hueMax: 30, satMin: 0.4, valMin: 0.3 };
+  // If the patch is essentially colorless (tapped a white light with no colored
+  // ring), there is no hue to track — return a permissive default and let the
+  // user retap. Otherwise characterize from the colored pixels.
+  if (n < 3) return { hueMin: 0, hueMax: 30, satMin: 0.4, valMin: 0.3 };
 
   let hue = (Math.atan2(sin / n, cos / n) * 180) / Math.PI;
   if (hue < 0) hue += 360;
-  const avgS = sSum / n;
+  const avgS = sSum / n; // saturation of the colored ring (not the white core)
   const avgV = vSum / n;
 
-  // ±15° hue window. The saturation floor is a firm fraction of the sampled
-  // tape's saturation: warm-neutral backgrounds (floors, walls, wood, skin)
-  // sit in the red/orange hue range at moderate saturation, so a red/pink/
-  // magenta marker needs a high floor to reject them. Gating at ~0.66× the
-  // vivid tape's saturation isolates the marker; the 0.30 floor keeps it sane
-  // for less-saturated tape. (Verified against a magenta grip over a warm floor.)
+  // ±15° hue window. Saturation/brightness floors ADAPT to the sample so a
+  // marker locks onto its own core, not dimmer look-alikes nearby:
+  //
+  //  - A bright, pure sample (a self-lit LED: high value AND high saturation)
+  //    gets TIGHT floors. This rejects skin, warm reflections and colored spill
+  //    — which share the hue but are less saturated and less bright — so the
+  //    detector anchors on the intense center of the light. (A hand lit red
+  //    reads sat≈0.65/val≈0.69; a red LED core reads sat≈0.85/val≈0.9, so
+  //    satMin≈0.70 + valMin≈0.62 keeps the LED and drops the hand entirely.)
+  //  - A matte sample (tape: moderate value) keeps LOOSE floors so it still
+  //    tracks as room light dims.
   const HUE_TOL = 15;
+  // A blown-out peak (near-white core) marks a self-lit source (LED); matte
+  // tape never clips, so its peak stays lower. A lit source gets a satMin very
+  // close to its own ring saturation (×0.90): dimmer look-alikes like a red-lit
+  // hand read ~0.05-0.15 less saturated, and that gap is enough to drop them
+  // entirely while the LED survives. (Verified on the user's screenshot where
+  // the red LED, satMin≈0.68, wins over a bigger red-lit hand.)
+  const litSource = peakV > 0.9;
+  const satMult = litSource ? 0.9 : avgS > 0.7 ? 0.82 : 0.66;
   return {
     hueMin: (hue - HUE_TOL + 360) % 360,
     hueMax: (hue + HUE_TOL) % 360,
-    satMin: Math.max(0.3, avgS * 0.66),
-    valMin: Math.max(0.15, avgV * 0.4),
+    satMin: Math.max(0.35, avgS * satMult),
+    valMin: litSource ? Math.max(0.3, avgV * 0.6) : Math.max(0.15, avgV * 0.4),
   };
 }
