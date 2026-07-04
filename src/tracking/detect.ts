@@ -17,11 +17,23 @@ const hueInWindow = (h: number, win: HSVWindow): boolean =>
     ? h >= win.hueMin && h <= win.hueMax
     : h >= win.hueMin || h <= win.hueMax; // wrapped window (e.g. 350°..10°)
 
+// Reused per-frame scratch buffers (avoid GC churn at 30 Hz). Sized on demand.
+let labelBuf: Uint8Array | null = null;
+let visitedBuf: Uint8Array | null = null;
+let stackBuf: Int32Array | null = null;
+
 /**
- * One pass over the frame, testing every pixel against the marker HSV windows
- * and accumulating centroid sums. The optional `frame` window is the fixed-
- * frame reference marker (lean cancellation). ~77k pixels at 320x240 —
- * comfortably inside the 12 ms worker budget in plain JS.
+ * Per-frame marker detection. Two stages:
+ *  1. Label every pixel by which HSV window it matches (1=left, 2=right,
+ *     3=frame).
+ *  2. Take the LARGEST 4-connected blob per label as the marker.
+ *
+ * Stage 2 is what makes tracking robust in a busy room: scattered background
+ * pixels that happen to match a marker color (skin on a red marker, a blue
+ * poster on a blue marker) form small disconnected blobs and are ignored — only
+ * the one solid tape band wins, instead of the old global-centroid average that
+ * every stray pixel dragged around. ~77k pixels at 320x240; the flood fill only
+ * touches matched pixels, so it stays well inside the 12 ms worker budget.
  */
 export function detectMarkers(
   data: Uint8ClampedArray,
@@ -31,59 +43,79 @@ export function detectMarkers(
   right: HSVWindow,
   frame?: HSVWindow,
 ): DetectResult {
-  let lSumX = 0, lSumY = 0, lN = 0;
-  let rSumX = 0, rSumY = 0, rN = 0;
-  let fSumX = 0, fSumY = 0, fN = 0;
+  const N = width * height;
+  if (!labelBuf || labelBuf.length < N) {
+    labelBuf = new Uint8Array(N);
+    visitedBuf = new Uint8Array(N);
+    stackBuf = new Int32Array(N);
+  }
+  const label = labelBuf;
+  const visited = visitedBuf!;
+  const stack = stackBuf!;
+  label.fill(0, 0, N);
+  visited.fill(0, 0, N);
+
   const minSat = frame
     ? Math.min(left.satMin, right.satMin, frame.satMin)
     : Math.min(left.satMin, right.satMin);
 
+  // ---- stage 1: label pixels by matching window --------------------------
   let i = 0;
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++, i += 4) {
-      const r = data[i], g = data[i + 1], b = data[i + 2];
+  for (let p = 0; p < N; p++, i += 4) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    const max = r > g ? (r > b ? r : b) : g > b ? g : b;
+    if (max === 0) continue;
+    const min = r < g ? (r < b ? r : b) : g < b ? g : b;
+    const d = max - min;
+    const s = d / max;
+    if (s < minSat) continue;
+    const v = max / 255;
 
-      // Inline RGB→HSV (h in degrees, s/v in 0..1)
-      const max = r > g ? (r > b ? r : b) : g > b ? g : b;
-      if (max === 0) continue;
-      const min = r < g ? (r < b ? r : b) : g < b ? g : b;
-      const d = max - min;
-      const s = d / max;
-      const v = max / 255;
+    let h: number;
+    if (d === 0) h = 0;
+    else if (max === r) h = 60 * (((g - b) / d) % 6);
+    else if (max === g) h = 60 * ((b - r) / d + 2);
+    else h = 60 * ((r - g) / d + 4);
+    if (h < 0) h += 360;
 
-      // Cheap pre-reject before computing hue
-      if (s < minSat) continue;
-
-      let h: number;
-      if (d === 0) h = 0;
-      else if (max === r) h = 60 * (((g - b) / d) % 6);
-      else if (max === g) h = 60 * ((b - r) / d + 2);
-      else h = 60 * ((r - g) / d + 4);
-      if (h < 0) h += 360;
-
-      if (s >= left.satMin && v >= left.valMin && hueInWindow(h, left)) {
-        lSumX += x; lSumY += y; lN++;
-      } else if (s >= right.satMin && v >= right.valMin && hueInWindow(h, right)) {
-        rSumX += x; rSumY += y; rN++;
-      } else if (frame && s >= frame.satMin && v >= frame.valMin && hueInWindow(h, frame)) {
-        fSumX += x; fSumY += y; fN++;
-      }
-    }
+    if (s >= left.satMin && v >= left.valMin && hueInWindow(h, left)) label[p] = 1;
+    else if (s >= right.satMin && v >= right.valMin && hueInWindow(h, right)) label[p] = 2;
+    else if (frame && s >= frame.satMin && v >= frame.valMin && hueInWindow(h, frame)) label[p] = 3;
   }
 
+  // ---- stage 2: largest connected component per label --------------------
+  // best[lab] = [size, sumX, sumY]
+  const best: Array<[number, number, number]> = [
+    [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0],
+  ];
+  for (let p0 = 0; p0 < N; p0++) {
+    const lab = label[p0];
+    if (lab === 0 || visited[p0]) continue;
+    let size = 0, sx = 0, sy = 0, sp = 0;
+    stack[sp++] = p0;
+    visited[p0] = 1;
+    while (sp > 0) {
+      const p = stack[--sp];
+      const x = p % width;
+      const y = (p - x) / width;
+      size++; sx += x; sy += y;
+      if (x > 0) { const q = p - 1; if (label[q] === lab && !visited[q]) { visited[q] = 1; stack[sp++] = q; } }
+      if (x < width - 1) { const q = p + 1; if (label[q] === lab && !visited[q]) { visited[q] = 1; stack[sp++] = q; } }
+      if (y > 0) { const q = p - width; if (label[q] === lab && !visited[q]) { visited[q] = 1; stack[sp++] = q; } }
+      if (y < height - 1) { const q = p + width; if (label[q] === lab && !visited[q]) { visited[q] = 1; stack[sp++] = q; } }
+    }
+    if (size > best[lab][0]) best[lab] = [size, sx, sy];
+  }
+
+  const toPoint = (b: [number, number, number]): MarkerPoint | null =>
+    b[0] >= MIN_BLOB_AREA
+      ? { x: b[1] / b[0] / width, y: b[2] / b[0] / height, area: b[0] }
+      : null;
+
   return {
-    left:
-      lN >= MIN_BLOB_AREA
-        ? { x: lSumX / lN / width, y: lSumY / lN / height, area: lN }
-        : null,
-    right:
-      rN >= MIN_BLOB_AREA
-        ? { x: rSumX / rN / width, y: rSumY / rN / height, area: rN }
-        : null,
-    frame:
-      frame && fN >= MIN_BLOB_AREA
-        ? { x: fSumX / fN / width, y: fSumY / fN / height, area: fN }
-        : null,
+    left: toPoint(best[1]),
+    right: toPoint(best[2]),
+    frame: frame ? toPoint(best[3]) : null,
   };
 }
 

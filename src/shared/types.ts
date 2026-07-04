@@ -90,7 +90,7 @@ export const PROC_W = 320;
 export const PROC_H = 240;
 export const TRACK_HZ = 30;
 export const TRACK_HZ_REDUCED = 20;
-export const DEADZONE = 0.04;
+export const DEADZONE = 0.07;
 export const DEFAULT_STEER_SIGN: 1 | -1 = -1;
 export const MIN_BLOB_AREA = 14; // px at 320x240 — reject noise specks
 /** Worker holds the last angle this long after losing a marker, then reports lost. */
@@ -99,7 +99,10 @@ export const HOLD_LAST_MS = 300;
 export const STALE_MS = 300;
 /** Steering eases back to 0 over this long when tracking is lost. */
 export const LOSS_EASE_MS = 500;
-export const ONE_EURO_MIN_CUTOFF = 1.0;
+// Lower minCutoff = more smoothing of slow/rest signal (kills jitter with a
+// little more lag); rate-based steering hides the lag well. beta keeps fast
+// turns responsive. Tunable live in the debug overlay (backtick).
+export const ONE_EURO_MIN_CUTOFF = 0.8;
 export const ONE_EURO_BETA = 0.007;
 
 // ---------------------------------------------------------------------------
