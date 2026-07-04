@@ -6,7 +6,7 @@
 <title>Endless Rider — Marker Tape Guide</title>
 <style>
   :root{
-    --red:#FF5A5A; --green:#39FF6A; --blue:#4FB8FF;
+    --lime:#A6E22E; --pink:#FF5EC4; --blue:#4FB8FF;
     --ink:#1c1533; --muted:#6b6482; --card:#ffffff; --line:#e7e3f2;
     --font: ui-rounded, "SF Pro Rounded", Quicksand, "Trebuchet MS", system-ui, sans-serif;
   }
@@ -73,19 +73,19 @@
 
   <div class="cards">
     <div class="card">
-      <div class="chip" style="background:var(--red)"><span class="role">LEFT grip</span><span class="num">1</span></div>
+      <div class="chip" style="background:var(--lime)"><span class="role">LEFT grip</span><span class="num">1</span></div>
       <div class="body">
-        <h3>Neon Red</h3>
+        <h3>Neon Lime-Green</h3>
         <p>Wrap the <b>left</b> handlebar end, outside the grip.</p>
-        <span class="hex"><span class="dot" style="background:var(--red)"></span>#FF5A5A</span>
+        <span class="hex"><span class="dot" style="background:var(--lime)"></span>#A6E22E</span>
       </div>
     </div>
     <div class="card">
-      <div class="chip" style="background:var(--green)"><span class="role">RIGHT grip</span><span class="num">2</span></div>
+      <div class="chip" style="background:var(--pink)"><span class="role">RIGHT grip</span><span class="num">2</span></div>
       <div class="body">
-        <h3>Neon Green</h3>
+        <h3>Neon Pink / Magenta</h3>
         <p>Wrap the <b>right</b> handlebar end, outside the grip.</p>
-        <span class="hex"><span class="dot" style="background:var(--green)"></span>#39FF6A</span>
+        <span class="hex"><span class="dot" style="background:var(--pink)"></span>#FF5EC4</span>
       </div>
     </div>
     <div class="card">
@@ -120,13 +120,13 @@
       <rect x="432" y="196" width="36" height="150" rx="16" fill="url(#bar)"/>
       <rect x="300" y="322" width="300" height="30" rx="15" fill="url(#bar)"/>
       <rect x="150" y="196" width="600" height="40" rx="20" fill="url(#bar)" filter="url(#soft)"/>
-      <rect x="150" y="192" width="96" height="48" rx="22" fill="#FF5A5A" stroke="#c53a3a" stroke-width="3"/>
-      <rect x="654" y="192" width="96" height="48" rx="22" fill="#39FF6A" stroke="#1f9e45" stroke-width="3"/>
+      <rect x="150" y="192" width="96" height="48" rx="22" fill="#A6E22E" stroke="#6f9e17" stroke-width="3"/>
+      <rect x="654" y="192" width="96" height="48" rx="22" fill="#FF5EC4" stroke="#c53a9a" stroke-width="3"/>
       <rect x="392" y="318" width="120" height="38" rx="16" fill="#4FB8FF" stroke="#2b7fc0" stroke-width="3"/>
-      <text x="198" y="150" text-anchor="middle" class="lbl" fill="#c53a3a">① LEFT · red</text>
-      <line x1="198" y1="160" x2="198" y2="188" stroke="#c53a3a" stroke-width="3"/>
-      <text x="702" y="150" text-anchor="middle" class="lbl" fill="#159a43">② RIGHT · green</text>
-      <line x1="702" y1="160" x2="702" y2="188" stroke="#159a43" stroke-width="3"/>
+      <text x="198" y="150" text-anchor="middle" class="lbl" fill="#5f8a12">① LEFT · lime</text>
+      <line x1="198" y1="160" x2="198" y2="188" stroke="#6f9e17" stroke-width="3"/>
+      <text x="702" y="150" text-anchor="middle" class="lbl" fill="#c53a9a">② RIGHT · pink</text>
+      <line x1="702" y1="160" x2="702" y2="188" stroke="#c53a9a" stroke-width="3"/>
       <text x="452" y="410" text-anchor="middle" class="lbl" fill="#2277bd">③ FRAME · blue</text>
       <line x1="452" y1="360" x2="452" y2="396" stroke="#2277bd" stroke-width="3"/>
       <text x="450" y="452" text-anchor="middle" class="lbl s" fill="#6b6482">
@@ -140,18 +140,18 @@
     <div class="wheelwrap">
       <svg width="230" height="230" viewBox="0 0 230 230" aria-label="Color wheel with the three marker hues">
         <circle cx="115" cy="115" r="104" fill="none" stroke="#eee" stroke-width="22"/>
-        <circle cx="115" cy="115" r="104" fill="none" stroke="#FF5A5A" stroke-width="22"
-          stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-352 115 115)"/>
-        <circle cx="115" cy="115" r="104" fill="none" stroke="#39FF6A" stroke-width="22"
-          stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-135 115 115)"/>
+        <circle cx="115" cy="115" r="104" fill="none" stroke="#A6E22E" stroke-width="22"
+          stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-74 115 115)"/>
+        <circle cx="115" cy="115" r="104" fill="none" stroke="#FF5EC4" stroke-width="22"
+          stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-330 115 115)"/>
         <circle cx="115" cy="115" r="104" fill="none" stroke="#4FB8FF" stroke-width="22"
           stroke-dasharray="34 620" stroke-dashoffset="-100" transform="rotate(-205 115 115)"/>
         <text x="115" y="120" text-anchor="middle" font-size="15" fill="#6b6482" font-family="ui-rounded,sans-serif" font-weight="700">hue wheel</text>
       </svg>
       <div class="wheel-caption">
         The three hues sit far apart on the wheel, so the tracker tells them apart even in dim light or slight blur.
-        And <b>red, green and blue don't appear on skin, wood, or most walls and bikes</b>, so the background won't
-        create false blobs — unlike orange/yellow (wood, warm light, many frames) or cyan (too close to the blue).
+        And <b>lime, pink and blue don't appear on skin, wood, or most walls</b>, so the background won't
+        create false blobs — unlike orange/yellow (wood, warm light, and many bike frames).
       </div>
     </div>
   </div>
@@ -180,7 +180,7 @@
   </div>
 
   <div class="note">
-    💡 <b>These are the app's default colors.</b> During calibration you'll see a matching red, green and blue ring
+    💡 <b>These are the app's default colors.</b> During calibration you'll see a matching lime, pink and blue ring
     snap onto each band — that's your confirmation the camera locked on. Any three <i>distinct, saturated</i> colors
     also work: the wizard samples whatever you tap. No frame band? Press <b>Skip</b> for two-marker mode (leaning
     will read as steering).

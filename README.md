@@ -41,8 +41,8 @@ Localhost is a secure context, so the camera works without any HTTPS setup.
    **Raise the laptop** (books work) until the camera sees the bars head-on.
 3. Wrap **two bands of bright neon tape (~3–4 cm wide)** around the very ends
    of the handlebars, outside the grips:
-   - **left** end: neon **red**
-   - **right** end: neon **green**
+   - **left** end: neon **lime-green**
+   - **right** end: neon **pink / magenta**
 4. *(Optional but recommended)* Add a **third neon-blue** sticker on the bike
    **frame** — the stem or top tube, somewhere that does **not** turn with the
    handlebars. This lets the tracker tell *steering* apart from *leaning the
