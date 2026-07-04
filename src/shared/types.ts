@@ -91,7 +91,10 @@ export const PROC_H = 240;
 export const TRACK_HZ = 30;
 export const TRACK_HZ_REDUCED = 20;
 export const DEADZONE = 0.07;
-export const DEFAULT_STEER_SIGN: 1 | -1 = -1;
+// Direction is now derived automatically from the labeled left/right calibration
+// limits, so the default sign is a neutral +1 (the Flip button remains as a
+// rarely-needed manual override).
+export const DEFAULT_STEER_SIGN: 1 | -1 = 1;
 export const MIN_BLOB_AREA = 14; // px at 320x240 — reject noise specks
 /** Worker holds the last angle this long after losing a marker, then reports lost. */
 export const HOLD_LAST_MS = 300;

@@ -77,19 +77,25 @@ export class SteerPipeline {
       rawDeg = wrapDeg(barTilt - lean);
 
       if (p) {
-        // Image-space deflection from center. The two recorded locks give the
-        // span magnitude on each side; steerSign alone decides which way is
-        // "left" in the game (front-camera mirroring folded into one constant,
-        // verified by the wizard's flip-direction check).
+        // Deflection from the calibrated straight position, and the deflections
+        // recorded at the full-LEFT and full-RIGHT locks.
         const d = wrapDeg(rawDeg - p.centerDeg);
-        const dl = wrapDeg(p.leftMaxDeg - p.centerDeg);
-        const dr = wrapDeg(p.rightMaxDeg - p.centerDeg);
-        let posSpan = Math.max(dl, dr);
-        let negSpan = Math.min(dl, dr);
-        if (posSpan <= 1) posSpan = Math.max(Math.abs(negSpan), 5); // degenerate calibration guard
-        if (negSpan >= -1) negSpan = -Math.max(posSpan, 5);
-        let n = d >= 0 ? d / posSpan : d / Math.abs(negSpan);
-        n = clamp(n, -1, 1) * p.steerSign;
+        const dl = wrapDeg(p.leftMaxDeg - p.centerDeg); // deflection at full LEFT
+        const dr = wrapDeg(p.rightMaxDeg - p.centerDeg); // deflection at full RIGHT
+
+        // Piecewise map: full-left → -1, straight → 0, full-right → +1. Because
+        // the limits are taken from the LABELED wizard steps ("turn left",
+        // "turn right"), the direction is baked in and correct no matter how the
+        // camera mirrors the image or which color sits on which grip — no manual
+        // flip needed. Whichever recorded limit the live deflection shares a sign
+        // with tells us which way (and how far) the bars are turned.
+        let n = 0;
+        if (dl !== 0 && Math.sign(d) === Math.sign(dl)) {
+          n = -clamp(d / dl, 0, 1); // toward the left lock
+        } else if (dr !== 0 && Math.sign(d) === Math.sign(dr)) {
+          n = clamp(d / dr, 0, 1); // toward the right lock
+        }
+        n *= p.steerSign; // optional manual override; +1 by default (no-op)
 
         // Deadzone ±DEADZONE around center, rescaled so output stays continuous.
         const a = Math.abs(n);

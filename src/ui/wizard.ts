@@ -91,7 +91,7 @@ const COPY: Record<Phase, { title: string; sub: string; button: string | null }>
   },
   'left-limit': {
     title: '5️⃣ Turn all the way LEFT ⬅️',
-    sub: 'Hold the bars at full left. The pointer below should move LEFT — if it goes the wrong way, press Flip.',
+    sub: 'Hold the bars all the way to the LEFT, then press Ready. (Direction is set automatically.)',
     button: '✅ Ready',
   },
   'right-limit': {
@@ -175,7 +175,9 @@ export function runWizard(
       readyBtn.textContent = copy.button ?? '';
       readyBtn.disabled = false;
       needle.style.display = p === 'center' || p === 'left-limit' || p === 'right-limit' ? 'block' : 'none';
-      flipBtn.style.display = p === 'left-limit' || p === 'right-limit' ? 'inline-block' : 'none';
+      // Direction is auto-derived from the labeled left/right limits now, so the
+      // manual flip step is retired (it would only re-introduce a reversal).
+      flipBtn.style.display = 'none';
       skipFrameBtn.style.display = p === 'frame-marker' ? 'inline-block' : 'none';
     };
     setPhase('left-marker');
