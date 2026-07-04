@@ -70,13 +70,13 @@ const PHASES: Phase[] = [
 
 const COPY: Record<Phase, { title: string; sub: string; button: string | null }> = {
   'left-marker': {
-    title: '1️⃣ Tap the LEFT sticker 🟢',
-    sub: 'Find the bright tape on the LEFT handlebar end in the picture and tap right on it.',
+    title: '1️⃣ Tap the LEFT marker 🟢',
+    sub: 'Find the bright light/tape on the LEFT handlebar end and tap right on it.',
     button: null,
   },
   'right-marker': {
-    title: '2️⃣ Now tap the RIGHT sticker 🩷',
-    sub: 'Tap the tape on the RIGHT handlebar end. A ring means we can see it!',
+    title: '2️⃣ Now tap the RIGHT marker 🔴',
+    sub: 'Tap the RIGHT handlebar light/tape. A ring means we can see it!',
     button: null,
   },
   'frame-marker': {
@@ -297,8 +297,8 @@ export function runWizard(
       const r = tracker.latest;
       if (!r) return;
       const ringz: [typeof r.left, string][] = [
-        [r.left, '#a6e22e'],
-        [r.right, '#ff5ec4'],
+        [r.left, '#39ff6a'],
+        [r.right, '#ff5a5a'],
         [r.frame, '#4fb8ff'],
       ];
       for (const [pt, color] of ringz) {

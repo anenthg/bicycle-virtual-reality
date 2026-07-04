@@ -134,11 +134,11 @@ export class SteerPipeline {
 }
 
 // Default hue windows so the wizard shows guide dots before patches are
-// sampled. Tuned for lime (left grip) / pink (right grip) / blue (frame) —
-// three well-separated hues that dodge a yellow bike frame (~48°) and skin.
-// (Calibration re-samples the exact tapped color, so other colors still work.)
+// sampled. Left covers lime tape AND a true-green LED (~140°); right covers
+// magenta/pink tape AND a red LED (~0-15°). High sat floors keep warm floors
+// and skin out. (Calibration re-samples the exact tapped color regardless.)
 const provisional = {
-  left: { hueMin: 62, hueMax: 98, satMin: 0.4, valMin: 0.35 }, // lime-green
-  right: { hueMin: 320, hueMax: 359, satMin: 0.5, valMin: 0.3 }, // pink/magenta (high sat floor vs warm floors)
+  left: { hueMin: 70, hueMax: 165, satMin: 0.4, valMin: 0.35 }, // green / lime
+  right: { hueMin: 325, hueMax: 12, satMin: 0.5, valMin: 0.3 }, // red / pink / magenta (wraps 0°)
   frame: { hueMin: 185, hueMax: 235, satMin: 0.35, valMin: 0.25 }, // blue
 };
