@@ -60,7 +60,7 @@ export interface DraftProfile {
   leanRestDeg: number | null;
 }
 
-export function newDraft(prev?: CalibrationProfile | null): DraftProfile {
+export function newDraft(_prev?: CalibrationProfile | null): DraftProfile {
   return {
     left: null,
     right: null,
@@ -70,7 +70,10 @@ export function newDraft(prev?: CalibrationProfile | null): DraftProfile {
     centerMidX: 0.5,
     barLength: 0.4,
     expectedArea: 60,
-    steerSign: prev?.steerSign ?? DEFAULT_STEER_SIGN,
+    // Direction is auto-derived from the labeled left/right limits, so steerSign
+    // is vestigial. Always start neutral — never inherit a stale (possibly
+    // reversed) value from a previous profile.
+    steerSign: DEFAULT_STEER_SIGN,
     frame: null,
     leanRestDeg: null,
   };

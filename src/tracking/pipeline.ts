@@ -95,7 +95,10 @@ export class SteerPipeline {
         } else if (dr !== 0 && Math.sign(d) === Math.sign(dr)) {
           n = clamp(d / dr, 0, 1); // toward the right lock
         }
-        n *= p.steerSign; // optional manual override; +1 by default (no-op)
+        // NOTE: no steerSign multiply. Direction is fully determined by the
+        // labeled left/right limits above, so an extra sign would only be able
+        // to REVERSE a correct result. (A stale steerSign=-1 persisted from an
+        // older profile used to do exactly that — the reversed-steering bug.)
 
         // Deadzone ±DEADZONE around center, rescaled so output stays continuous.
         const a = Math.abs(n);
@@ -107,7 +110,7 @@ export class SteerPipeline {
         // normalized by calibrated bar pixel-length.
         const midX = (left.x + right.x) / 2;
         offset = p.barLength > 0.01
-          ? clamp(((midX - p.centerMidX) / p.barLength) * 2 * p.steerSign, -1, 1)
+          ? clamp(((midX - p.centerMidX) / p.barLength) * 2, -1, 1)
           : 0;
 
         quality = clamp(
