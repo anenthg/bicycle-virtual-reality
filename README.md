@@ -31,8 +31,8 @@ camera** in the room. Both are below, plus a best-practices checklist.
 ### Install and run
 
 ```bash
-git clone https://github.com/anenth-civix/advaith-game.git
-cd advaith-game
+git clone https://github.com/anenthg/bicycle-virtual-reality.git
+cd bicycle-virtual-reality
 npm install
 npm run dev
 ```
