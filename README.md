@@ -16,6 +16,7 @@ one web page does everything.
 There are two things to set up: the **code** (this repo) and the **bike +
 camera** in the room. Both are below, plus a best-practices checklist.
 
+[Demo Video](https://x.com/anenth/status/2073373972390084892)
 ---
 
 ## Part 1 — Code setup (install from the repo)
